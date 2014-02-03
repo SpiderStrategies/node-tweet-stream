@@ -14,6 +14,10 @@ describe('twitter', function () {
     })
   })
 
+  it('fails if creds not received', function () {
+    assert.throws(function () { new Twitter({}) }, Error)
+  })
+
   it('emits twitter errors', function (done) {
     twitter.on('error', function (error) {
       assert(error)
