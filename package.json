@@ -1,0 +1,19 @@
+{
+  "name": "node-tweet-stream",
+  "version": "1.0.0",
+  "description": "A twitter module to hook into the public filter streaming, seamlessly updating the tracking keywords.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha test"
+  },
+  "keywords": ["twitter","streaming", "twitter public", "tweet"],
+  "author": "Nathan Bowser <nathan.bowser@spiderstrategies.com>",
+  "license": "ISC",
+  "dependencies": {
+    "request": "~2.33.0",
+    "event-stream": "~3.1.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.1"
+  }
+}
