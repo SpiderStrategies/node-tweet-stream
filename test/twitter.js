@@ -34,6 +34,13 @@ describe('twitter', function () {
                     track: 'tacos'
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
+
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    // track: 'tacos%2Ctortas'
+                    track: 'tacos,tortas'
+                  })
+                  .replyWithFile(200, __dirname + '/tacos.json')
     })
 
     it('emits tweets', function (done) {
@@ -44,26 +51,42 @@ describe('twitter', function () {
 
       assert(!twitter.stream)
       twitter.track('tacos')
-      assert.deepEqual(twitter.tracking, ['tacos'])
+      assert.deepEqual(twitter.tracking(), ['tacos'])
     })
 
-    it('avoids dups', function () {
+    it('tracks dups of same keyword', function () {
+      assert(!twitter.stream)
+      twitter.track('tacos')
+      twitter.track('tacos')
+      twitter.track('tortas')
+      assert.equal(twitter._tracking.tacos, 2)
+      assert.equal(twitter._tracking.tortas, 1)
+      assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
+      twitter.untrack('tacos')
+      assert.equal(twitter._tracking.tacos, 1)
+      assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
+      twitter.track('tacos')
+      assert.equal(twitter._tracking.tacos, 2)
+      assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
+    })
+
+    it('avoids dups in tracking stream', function () {
       assert(!twitter.stream)
       twitter.track('tacos')
       twitter.track('tacos')
       twitter.track('tacos')
-      assert.deepEqual(twitter.tracking, ['tacos'])
+      assert.deepEqual(twitter.tracking(), ['tacos'])
     })
 
     it('closes connection if tracking is empty', function (done) {
       twitter.abort = function () {
-        assert.deepEqual(twitter.tracking, [])
+        assert.deepEqual(twitter.tracking(), [])
         done()
       }
 
       assert(!twitter.stream)
       twitter.track('tacos')
-      assert.deepEqual(twitter.tracking, ['tacos'])
+      assert.deepEqual(twitter.tracking(), ['tacos'])
       twitter.untrack('tacos')
     })
   })
