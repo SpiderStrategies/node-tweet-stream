@@ -18,10 +18,11 @@ describe('twitter', function () {
     assert.throws(function () { new Twitter({}) }, Error)
   })
 
-  it('emits twitter errors', function (done) {
-    twitter.on('error', function (error) {
-      assert(error)
-      assert(error.message.match(/401/)) // Bad twitter oauth credentials
+  it('emits reconnect', function (done) {
+    twitter.on('reconnect', function (obj) {
+      assert(obj)
+      assert(obj.err.message)
+      assert(obj.err.message.match(/401/)) // Bad twitter oauth credentials
       done()
     })
     twitter.track('tacos')
@@ -89,5 +90,6 @@ describe('twitter', function () {
       assert.deepEqual(twitter.tracking(), ['tacos'])
       twitter.untrack('tacos')
     })
+
   })
 })
