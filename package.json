@@ -17,7 +17,7 @@
     "url": "https://github.com/SpiderStrategies/node-tweet-stream"
   },
   "author": "Nathan Bowser <nathan.bowser@spiderstrategies.com>",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "request": "~2.33.0",
     "event-stream": "~3.1.0"
