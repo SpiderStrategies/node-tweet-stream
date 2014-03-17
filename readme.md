@@ -45,3 +45,8 @@ t.untrack('pizza')
 ```
 
 Watch yourself when updating your tracking keywords. Twitter has [guidelines](https://dev.twitter.com/docs/streaming-apis/connecting#Rate_limiting) for connection rate limiting.
+
+
+Backoff strategy ripped from https://github.com/benfoxall/tweets/
+
+License: MIT
