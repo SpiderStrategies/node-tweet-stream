@@ -44,6 +44,16 @@ describe('twitter', function () {
                   .replyWithFile(200, __dirname + '/tacos.json')
     })
 
+    it('prevents a reconnect', function () {
+      var called = false
+      twitter.reconnect = function () {
+        called = true
+      }
+      twitter.track('tacos', false)
+      assert.deepEqual(twitter.tracking(), ['tacos'])
+      assert(!called)
+    })
+
     it('emits tweets', function (done) {
       twitter.on('tweet', function (tweet) {
         assert.equal(tweet.text, 'Taco')
@@ -72,11 +82,17 @@ describe('twitter', function () {
     })
 
     it('avoids dups in tracking stream', function () {
+      var called = 0
+      twitter.reconnect = function () {
+        called++
+      }
+
       assert(!twitter.stream)
       twitter.track('tacos')
       twitter.track('tacos')
       twitter.track('tacos')
       assert.deepEqual(twitter.tracking(), ['tacos'])
+      assert(called, 3)
     })
 
     it('closes connection if tracking is empty', function (done) {
