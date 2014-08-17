@@ -32,14 +32,16 @@ describe('twitter', function () {
     beforeEach(function () {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
-                    track: 'tacos'
+                    track: 'tacos',
+                    locations: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
 
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     // track: 'tacos%2Ctortas'
-                    track: 'tacos,tortas'
+                    track: 'tacos,tortas',
+                    locations: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
     })
@@ -70,14 +72,14 @@ describe('twitter', function () {
       twitter.track('tacos')
       twitter.track('tacos')
       twitter.track('tortas')
-      assert.equal(twitter._tracking.tacos, 2)
-      assert.equal(twitter._tracking.tortas, 1)
+      assert.equal(twitter._filters.tracking.tacos, 2)
+      assert.equal(twitter._filters.tracking.tortas, 1)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
       twitter.untrack('tacos')
-      assert.equal(twitter._tracking.tacos, 1)
+      assert.equal(twitter._filters.tracking.tacos, 1)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
       twitter.track('tacos')
-      assert.equal(twitter._tracking.tacos, 2)
+      assert.equal(twitter._filters.tracking.tacos, 2)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
     })
 
