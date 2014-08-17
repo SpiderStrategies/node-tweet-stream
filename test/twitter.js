@@ -108,6 +108,68 @@ describe('twitter', function () {
       assert.deepEqual(twitter.tracking(), ['tacos'])
       twitter.untrack('tacos')
     })
-
   })
+
+  describe('Location filters', function () {
+      beforeEach(function () {
+        nock('https://stream.twitter.com')
+                    .post('/1.1/statuses/filter.json', {
+                      track: '',
+                      locations: '123,123'
+                    })
+                    .replyWithFile(200, __dirname + '/tacos.json')
+
+        nock('https://stream.twitter.com')
+                    .post('/1.1/statuses/filter.json', {
+                      // track: 'tacos%2Ctortas'
+                      track: '',
+                      locations: '123,123,321,321'
+                    })
+                    .replyWithFile(200, __dirname + '/tacos.json')
+      })
+
+
+
+    it('tracks dups of same location', function () {
+      assert(!twitter.stream);
+      twitter.location('123,123');
+      twitter.location('123,123');
+      twitter.location('321,321');
+      assert.equal(twitter._filters.location['123,123'], 2);
+      assert.equal(twitter._filters.location['321,321'], 1);
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321']);
+      twitter.unlocate('123,123');
+      assert.equal(twitter._filters.location['123,123'], 1);
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321']);
+      twitter.location('123,123');
+      assert.equal(twitter._filters.location['123,123'], 2);
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321']);
+    })
+
+    it('avoids dups of locations in the stream request', function () {
+      var called = 0;
+      twitter.reconnect = function () {
+        called++;
+      };
+
+      assert(!twitter.stream);
+      twitter.location('123,123');
+      twitter.location('123,123');
+      twitter.location('123,123');
+      assert.deepEqual(twitter.locations(), ['123,123']);
+      assert(called, 3);
+    });
+
+    it('closes connection if locations is empty', function (done) {
+      twitter.abort = function () {
+        assert.deepEqual(twitter.locations(), []);
+        done();
+      };
+
+      assert(!twitter.stream);
+      twitter.location('123,123');
+      assert.deepEqual(twitter.locations(), ['123,123']);
+      twitter.unlocate('123,123');
+    });
+  });
 })
