@@ -32,14 +32,15 @@ describe('twitter', function () {
     beforeEach(function () {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
-                    track: 'tacos'
+                    track: 'tacos',
+                    locations: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
 
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
-                    // track: 'tacos%2Ctortas'
-                    track: 'tacos,tortas'
+                    track: 'tacos,tortas',
+                    locations: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
     })
@@ -70,14 +71,14 @@ describe('twitter', function () {
       twitter.track('tacos')
       twitter.track('tacos')
       twitter.track('tortas')
-      assert.equal(twitter._tracking.tacos, 2)
-      assert.equal(twitter._tracking.tortas, 1)
+      assert.equal(twitter._filters.tracking.tacos, 2)
+      assert.equal(twitter._filters.tracking.tortas, 1)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
       twitter.untrack('tacos')
-      assert.equal(twitter._tracking.tacos, 1)
+      assert.equal(twitter._filters.tracking.tacos, 1)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
       twitter.track('tacos')
-      assert.equal(twitter._tracking.tacos, 2)
+      assert.equal(twitter._filters.tracking.tacos, 2)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
     })
 
@@ -106,6 +107,67 @@ describe('twitter', function () {
       assert.deepEqual(twitter.tracking(), ['tacos'])
       twitter.untrack('tacos')
     })
+  })
 
+  describe('Location filters', function () {
+      beforeEach(function () {
+        nock('https://stream.twitter.com')
+                    .post('/1.1/statuses/filter.json', {
+                      track: '',
+                      locations: '123,123'
+                    })
+                    .replyWithFile(200, __dirname + '/tacos.json')
+
+        nock('https://stream.twitter.com')
+                    .post('/1.1/statuses/filter.json', {
+                      track: '',
+                      locations: '123,123,321,321'
+                    })
+                    .replyWithFile(200, __dirname + '/tacos.json')
+      })
+
+
+
+    it('tracks dups of same location', function () {
+      assert(!twitter.stream)
+      twitter.location('123,123')
+      twitter.location('123,123')
+      twitter.location('321,321')
+      assert.equal(twitter._filters.location['123,123'], 2)
+      assert.equal(twitter._filters.location['321,321'], 1)
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321'])
+      twitter.unlocate('123,123')
+      assert.equal(twitter._filters.location['123,123'], 1)
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321'])
+      twitter.location('123,123')
+      assert.equal(twitter._filters.location['123,123'], 2)
+      assert.deepEqual(twitter.locations(), ['123,123', '321,321'])
+    })
+
+    it('avoids dups of locations in the stream request', function () {
+      var called = 0
+      twitter.reconnect = function () {
+        called++
+      }
+
+      assert(!twitter.stream)
+      twitter.location('123,123')
+      twitter.location('123,123')
+      twitter.location('123,123')
+      assert.deepEqual(twitter.locations(), ['123,123'])
+      assert(called, 3)
+    })
+
+    it('closes connection if locations is empty', function (done) {
+      twitter.abort = function () {
+        assert.deepEqual(twitter.locations(), [])
+        done()
+      }
+
+      assert(!twitter.stream)
+      twitter.location('123,123')
+      assert.deepEqual(twitter.locations(), ['123,123'])
+      twitter.unlocate('123,123')
+    })
   })
 })
