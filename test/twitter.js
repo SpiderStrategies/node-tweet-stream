@@ -1,6 +1,7 @@
 var assert = require('assert')
   , Twitter = require('../')
   , nock = require('nock')
+  , Readable = require('stream').Readable
 
 describe('twitter', function () {
   var twitter
@@ -43,6 +44,32 @@ describe('twitter', function () {
                     locations: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
+    })
+
+    it('handles chunks', function (done) {
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'chunks',
+                    locations: ''
+                  })
+                  .reply(200, function (uri, body) {
+                    var rs = new Readable
+                      , calls = 0
+                    rs._read = function () {
+                      if (++calls === 1) {
+                        rs.push('{"text":')
+                      } else {
+                        rs.push('"taco"}\r\n')
+                        rs.push(null)
+                      }
+                    }
+                    return rs
+                  })
+
+      twitter.on('tweet', function (tweet) {
+        done()
+      })
+      twitter.track('chunks')
     })
 
     it('prevents a reconnect', function () {
