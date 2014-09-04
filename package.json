@@ -1,6 +1,6 @@
 {
   "name": "node-tweet-stream",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "A twitter module to hook into the public filter streaming, seamlessly updating the tracking keywords.",
   "main": "index.js",
   "scripts": {
