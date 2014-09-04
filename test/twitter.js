@@ -34,14 +34,16 @@ describe('twitter', function () {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'tacos',
-                    locations: ''
+                    locations: '',
+                    follow: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
 
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'tacos,tortas',
-                    locations: ''
+                    locations: '',
+                    follow: ''
                   })
                   .replyWithFile(200, __dirname + '/tacos.json')
     })
@@ -50,7 +52,8 @@ describe('twitter', function () {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'chunks',
-                    locations: ''
+                    locations: '',
+                    follow: ''
                   })
                   .reply(200, function (uri, body) {
                     var rs = new Readable
@@ -141,14 +144,16 @@ describe('twitter', function () {
         nock('https://stream.twitter.com')
                     .post('/1.1/statuses/filter.json', {
                       track: '',
-                      locations: '123,123'
+                      locations: '123,123',
+                      follow: ''
                     })
                     .replyWithFile(200, __dirname + '/tacos.json')
 
         nock('https://stream.twitter.com')
                     .post('/1.1/statuses/filter.json', {
                       track: '',
-                      locations: '123,123,321,321'
+                      locations: '123,123,321,321',
+                      follow: ''
                     })
                     .replyWithFile(200, __dirname + '/tacos.json')
       })
@@ -195,6 +200,68 @@ describe('twitter', function () {
       twitter.location('123,123')
       assert.deepEqual(twitter.locations(), ['123,123'])
       twitter.unlocate('123,123')
+    })
+  })
+
+  describe('follow filters', function () {
+    beforeEach(function () {
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: '',
+                    locations: '',
+                    follow: '12345'
+                  })
+                  .replyWithFile(200, __dirname + '/tacos.json')
+
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: '',
+                    locations: '',
+                    follow: '12345,123456'
+                  })
+                  .replyWithFile(200, __dirname + '/tacos.json')
+    })
+
+    it('tracks dups of same user', function () {
+      assert(!twitter.stream)
+      twitter.follow('12345')
+      twitter.follow('12345')
+      twitter.follow('123456')
+      assert.equal(twitter._filters.follow['12345'], 2)
+      assert.equal(twitter._filters.follow['123456'], 1)
+      assert.deepEqual(twitter.following(), ['12345', '123456'])
+      twitter.unfollow('12345')
+      assert.equal(twitter._filters.follow['12345'], 1)
+      assert.deepEqual(twitter.following(), ['12345', '123456'])
+      twitter.follow('12345')
+      assert.equal(twitter._filters.follow['12345'], 2)
+      assert.deepEqual(twitter.following(), ['12345', '123456'])
+    })
+
+    it('avoids dups of users in the stream request', function () {
+      var called = 0
+      twitter.reconnect = function () {
+        called++
+      }
+
+      assert(!twitter.stream)
+      twitter.follow('12345')
+      twitter.follow('12345')
+      twitter.follow('12345')
+      assert.deepEqual(twitter.following(), ['12345'])
+      assert(called, 3)
+    })
+
+    it('closes connection if following is empty', function (done) {
+      twitter.abort = function () {
+        assert.deepEqual(twitter.following(), [])
+        done()
+      }
+
+      assert(!twitter.stream)
+      twitter.follow('12345')
+      assert.deepEqual(twitter.following(), ['12345'])
+      twitter.unfollow('12345')
     })
   })
 })
