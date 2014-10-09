@@ -16,14 +16,21 @@ describe('parser', function () {
   })
 
   it('ignore new line heartbeat checks', function (done) {
+    var tweets = 0
     parser.on('data', function (data) {
-      done(new Error('Should not emit data event'))
+      tweets++
     })
 
     parser.on('end', function () {
+      assert.equal(tweets, 4)
       done()
     })
 
+    through.push('{"text": "tweet body"}')
+    through.push('{"text": "tweet body"}')
+    through.push('\n')
+    through.push('{"text": "tweet body"}')
+    through.push('{"text": "tweet body"}')
     through.push('\n')
     through.pipe(parser)
     through.end()
