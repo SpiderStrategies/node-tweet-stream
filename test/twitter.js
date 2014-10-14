@@ -264,4 +264,101 @@ describe('twitter', function () {
       twitter.unfollow('12345')
     })
   })
+
+  describe('other stream messages', function () {
+    beforeEach(function () {
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'delete',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/delete.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'scrub_geo',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/scrub_geo.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'limit',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/limit.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'status_withheld',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/status_withheld.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'user_withheld',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/user_withheld.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'disconnect',
+                    locations: '',
+                    follow: ''
+                  })
+                  .replyWithFile(200, __dirname + '/disconnect.json')
+    })
+
+    it('emits delete event', function (done) {
+      twitter.on('delete', function (tweet) {
+        assert.equal(tweet.status.id_str, '521997465973952512')
+        assert.equal(tweet.status.user_id, 12345)
+        done()
+      })
+      twitter.track('delete')
+    })
+
+    it('emits scrub_geo event', function (done) {
+      twitter.on('scrub_geo', function (tweet) {
+        assert.equal(tweet.up_to_status_id_str, '23260136625')
+        assert.equal(tweet.user_id, 12345)
+        done()
+      })
+      twitter.track('scrub_geo')
+    })
+
+    it('emits limit event', function (done) {
+      twitter.on('limit', function (tweet) {
+        assert.equal(tweet.track, 1234)
+        done()
+      })
+      twitter.track('limit')
+    })
+
+    it('emits status_withheld event', function (done) {
+      twitter.on('status_withheld', function (tweet) {
+        assert.deepEqual(tweet.withheld_in_countries, ['DE', 'AR'])
+        done()
+      })
+      twitter.track('status_withheld')
+    })
+
+    it('emits user_withheld event', function (done) {
+      twitter.on('user_withheld', function (tweet) {
+        assert.deepEqual(tweet.withheld_in_countries, ['DE', 'AR'])
+        done()
+      })
+      twitter.track('user_withheld')
+    })
+
+    it('emits disconnect event', function (done) {
+      twitter.on('disconnect', function (tweet) {
+        assert.equal(tweet.code, 6)
+        done()
+      })
+      twitter.track('disconnect')
+    })
+  })
 })
