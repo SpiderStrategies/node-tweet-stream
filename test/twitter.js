@@ -37,7 +37,7 @@ describe('twitter', function () {
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/tacos.json')
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
@@ -45,7 +45,7 @@ describe('twitter', function () {
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/tacos.json')
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
 
     it('handles chunks', function (done) {
@@ -147,7 +147,7 @@ describe('twitter', function () {
                       locations: '123,123',
                       follow: ''
                     })
-                    .replyWithFile(200, __dirname + '/tacos.json')
+                    .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
         nock('https://stream.twitter.com')
                     .post('/1.1/statuses/filter.json', {
@@ -155,7 +155,7 @@ describe('twitter', function () {
                       locations: '123,123,321,321',
                       follow: ''
                     })
-                    .replyWithFile(200, __dirname + '/tacos.json')
+                    .replyWithFile(200, __dirname + '/mocks/tacos.json')
       })
 
 
@@ -211,7 +211,7 @@ describe('twitter', function () {
                     locations: '',
                     follow: '12345'
                   })
-                  .replyWithFile(200, __dirname + '/tacos.json')
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
@@ -219,7 +219,7 @@ describe('twitter', function () {
                     locations: '',
                     follow: '12345,123456'
                   })
-                  .replyWithFile(200, __dirname + '/tacos.json')
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
 
     it('tracks dups of same user', function () {
@@ -273,42 +273,42 @@ describe('twitter', function () {
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/delete.json')
+                  .replyWithFile(200, __dirname + '/mocks/delete.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'scrub_geo',
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/scrub_geo.json')
+                  .replyWithFile(200, __dirname + '/mocks/scrub_geo.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'limit',
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/limit.json')
+                  .replyWithFile(200, __dirname + '/mocks/limit.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'status_withheld',
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/status_withheld.json')
+                  .replyWithFile(200, __dirname + '/mocks/status_withheld.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'user_withheld',
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/user_withheld.json')
+                  .replyWithFile(200, __dirname + '/mocks/user_withheld.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'disconnect',
                     locations: '',
                     follow: ''
                   })
-                  .replyWithFile(200, __dirname + '/disconnect.json')
+                  .replyWithFile(200, __dirname + '/mocks/disconnect.json')
     })
 
     it('emits delete event', function (done) {
