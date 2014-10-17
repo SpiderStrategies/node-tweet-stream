@@ -27,15 +27,15 @@ describe('reconnects on network hiccups', function () {
           return res.end()
         }
         res.write('\r\n')
-      }, 100)
+      }, 10)
 
       setTimeout(function () {
         fs.createReadStream(__dirname + '/mocks/tacos.json').pipe(res, {end: false})
-      }, 200)
+      }, 20)
 
     }).listen(3000)
 
-    twitter.timeoutInterval = 2000
+    twitter.timeoutInterval = 50
     twitter.twitterUrl = 'http://localhost:3000'
   })
 
@@ -44,19 +44,24 @@ describe('reconnects on network hiccups', function () {
   })
 
   it('reconnects on stale and keeps emitting tweets', function (done) {
-    this.timeout(10000)
-    var reconnect = false
+    var reconnects = 0
       , tweets = []
+      , errors = []
+
     twitter.on('error', function (e) {
-      console.log('error!', e)
+      errors.push(e)
     })
+
     twitter.on('reconnect', function (obj) {
-      reconnect = true
-      console.log('reconnect', obj)
+      if (++reconnects === 3) {
+        assert.equal(tweets.length, 3)
+        assert.equal(errors.length, 0)
+        done()
+      }
     })
+
     twitter.on('tweet', function (tweet) {
       tweets.push(tweet)
-      console.log('tweet', tweet)
     })
     twitter.track('tacos')
   })
