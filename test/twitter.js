@@ -111,6 +111,14 @@ describe('twitter', function () {
       assert.equal(twitter._filters.tracking.tacos, 2)
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
     })
+    
+    it('can start tracking multiple words at once', function () {
+      assert(!twitter.stream)
+      twitter.trackMulitple(['tacos', 'tortas'])
+      assert.equal(twitter._filters.tracking.tacos, 1)
+      assert.equal(twitter._filters.tracking.tortas, 1)
+      assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
+    })
 
     it('avoids dups in tracking stream', function () {
       var called = 0
