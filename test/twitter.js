@@ -35,7 +35,8 @@ describe('twitter', function () {
                   .post('/1.1/statuses/filter.json', {
                     track: 'tacos',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
@@ -43,7 +44,8 @@ describe('twitter', function () {
                   .post('/1.1/statuses/filter.json', {
                     track: 'tacos,tortas',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
@@ -53,7 +55,8 @@ describe('twitter', function () {
                   .post('/1.1/statuses/filter.json', {
                     track: 'chunks',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .reply(200, function (uri, body) {
                     var rs = new Readable
@@ -145,7 +148,8 @@ describe('twitter', function () {
                     .post('/1.1/statuses/filter.json', {
                       track: '',
                       locations: '123,123',
-                      follow: ''
+                      follow: '',
+                      language: ''
                     })
                     .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
@@ -153,7 +157,8 @@ describe('twitter', function () {
                     .post('/1.1/statuses/filter.json', {
                       track: '',
                       locations: '123,123,321,321',
-                      follow: ''
+                      follow: '',
+                      language: ''
                     })
                     .replyWithFile(200, __dirname + '/mocks/tacos.json')
       })
@@ -209,7 +214,8 @@ describe('twitter', function () {
                   .post('/1.1/statuses/filter.json', {
                     track: '',
                     locations: '',
-                    follow: '12345'
+                    follow: '12345',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
@@ -217,7 +223,8 @@ describe('twitter', function () {
                   .post('/1.1/statuses/filter.json', {
                     track: '',
                     locations: '',
-                    follow: '12345,123456'
+                    follow: '12345,123456',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
@@ -265,48 +272,96 @@ describe('twitter', function () {
     })
   })
 
+  describe('language filters', function () {
+    beforeEach(function () {
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: 'tacos',
+                    locations: '',
+                    follow: '',
+                    language: 'en'
+                  })
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
+    })
+
+    it('tracks dups of same language', function () {
+      assert(!twitter.stream)
+      twitter.language('en')
+      twitter.language('en')
+      twitter.language('es')
+      assert.equal(twitter._filters.language['en'], 2)
+      assert.equal(twitter._filters.language['es'], 1)
+      assert.deepEqual(twitter.languages(), ['en', 'es'])
+      twitter.unlanguage('en')
+      assert.equal(twitter._filters.language['en'], 1)
+      assert.deepEqual(twitter.languages(), ['en', 'es'])
+      twitter.language('en')
+      assert.equal(twitter._filters.language['en'], 2)
+      assert.deepEqual(twitter.languages(), ['en', 'es'])
+    })
+
+    it('filters language', function (done) {
+      twitter.on('tweet', function (tweet) {
+        assert.equal(tweet.lang, 'en')
+        done()
+      })
+
+      assert(!twitter.stream)
+      twitter.track('tacos')
+      twitter.language('en')
+      assert.deepEqual(twitter.languages(), ['en'])
+    })
+
+  })
+
   describe('other stream messages', function () {
     beforeEach(function () {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'delete',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/delete.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'scrub_geo',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/scrub_geo.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'limit',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/limit.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'status_withheld',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/status_withheld.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'user_withheld',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/user_withheld.json')
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
                     track: 'disconnect',
                     locations: '',
-                    follow: ''
+                    follow: '',
+                    language: ''
                   })
                   .replyWithFile(200, __dirname + '/mocks/disconnect.json')
     })
