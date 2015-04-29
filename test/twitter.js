@@ -50,6 +50,13 @@ describe('twitter', function () {
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
 
+    it('emits connect', function (done) {
+      twitter.on('connect', function () {
+        done()
+      })
+      twitter.track('tacos')
+    })
+
     it('handles chunks', function (done) {
       nock('https://stream.twitter.com')
                   .post('/1.1/statuses/filter.json', {
