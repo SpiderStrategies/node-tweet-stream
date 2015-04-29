@@ -141,7 +141,7 @@ describe('twitter', function () {
       twitter.track('tacos')
       twitter.track('tacos')
       assert.deepEqual(twitter.tracking(), ['tacos'])
-      assert(called, 3)
+      assert.equal(called, 1)
     })
 
     it('closes connection if tracking is empty', function (done) {
