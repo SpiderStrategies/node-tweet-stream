@@ -130,6 +130,17 @@ describe('twitter', function () {
       assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
     })
 
+    it('can untrack all words at once', function () {
+      assert(!twitter.stream)
+      twitter.trackMultiple(['tacos', 'tortas'])
+      assert.equal(twitter._filters.tracking.tacos, 1)
+      assert.equal(twitter._filters.tracking.tortas, 1)
+      assert.deepEqual(twitter.tracking(), ['tacos', 'tortas'])
+      twitter.untrackAll()
+      assert.deepEqual(twitter._filters.tracking, {})
+      assert.deepEqual(twitter.tracking(), [])
+    })
+
     it('avoids dups in tracking stream', function () {
       var called = 0
       twitter.reconnect = function () {
@@ -297,6 +308,14 @@ describe('twitter', function () {
                     language: 'en'
                   })
                   .replyWithFile(200, __dirname + '/mocks/tacos.json')
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: '',
+                    locations: '',
+                    follow: '',
+                    language: 'en,es'
+                  })
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
     })
 
     it('tracks dups of same language', function () {
@@ -326,7 +345,6 @@ describe('twitter', function () {
       twitter.language('en')
       assert.deepEqual(twitter.languages(), ['en'])
     })
-
   })
 
   describe('other stream messages', function () {
