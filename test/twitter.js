@@ -169,27 +169,25 @@ describe('twitter', function () {
   })
 
   describe('Location filters', function () {
-      beforeEach(function () {
-        nock('https://stream.twitter.com')
-                    .post('/1.1/statuses/filter.json', {
-                      track: '',
-                      locations: '123,123',
-                      follow: '',
-                      language: ''
-                    })
-                    .replyWithFile(200, __dirname + '/mocks/tacos.json')
+    beforeEach(function () {
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: '',
+                    locations: '123,123',
+                    follow: '',
+                    language: ''
+                  })
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
 
-        nock('https://stream.twitter.com')
-                    .post('/1.1/statuses/filter.json', {
-                      track: '',
-                      locations: '123,123,321,321',
-                      follow: '',
-                      language: ''
-                    })
-                    .replyWithFile(200, __dirname + '/mocks/tacos.json')
-      })
-
-
+      nock('https://stream.twitter.com')
+                  .post('/1.1/statuses/filter.json', {
+                    track: '',
+                    locations: '123,123,321,321',
+                    follow: '',
+                    language: ''
+                  })
+                  .replyWithFile(200, __dirname + '/mocks/tacos.json')
+    })
 
     it('tracks dups of same location', function () {
       assert(!twitter.stream)
