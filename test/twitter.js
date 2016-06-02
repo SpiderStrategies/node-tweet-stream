@@ -19,8 +19,8 @@ describe('twitter', function () {
     assert.throws(function () { new Twitter({}) }, Error)
   })
 
-  it('emits reconnect', function (done) {
-    twitter.on('reconnect', function (obj) {
+  it('emits error', function (done) {
+    twitter.on('error', function (obj) {
       assert(obj)
       assert(obj.err.message)
       assert(obj.err.message.match(/401/)) // Bad twitter oauth credentials
