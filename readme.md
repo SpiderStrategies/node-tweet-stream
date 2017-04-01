@@ -19,7 +19,7 @@ streaming API, we can improve this.
 
 ```
 var Twitter = require('node-tweet-stream')
-  , t = new Twitter({
+    t = new Twitter({
     consumer_key: '',
     consumer_secret: '',
     token: '',
