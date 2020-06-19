@@ -17,7 +17,7 @@ This code will probably be used at an application level, not a user level becaus
 and secret, because the streaming API doesn't support bearer tokens. This is a limitation of twitter, not this project. If twitter provides bearer token access to their
 streaming API, we can improve this.
 
-```
+```js
 var Twitter = require('node-tweet-stream')
   , t = new Twitter({
     consumer_key: '',
